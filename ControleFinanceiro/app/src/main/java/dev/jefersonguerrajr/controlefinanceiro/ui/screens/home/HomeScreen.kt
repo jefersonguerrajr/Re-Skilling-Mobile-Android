@@ -15,9 +15,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 
 @Composable
-fun HomeScreen(onNavigateToRevenueExpenses: () -> Unit) {
-    Column(modifier = Modifier.padding(horizontal = 16.dp),
-        verticalArrangement = Arrangement.spacedBy(8.dp)) {
+fun HomeScreen(onNavigateToRevenueExpenses: (String) -> Unit) {
+    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
         Text(text = "Olá, Fulano, bem vindo ao aplicativo de despesas pessoais.",
             style = MaterialTheme.typography.titleLarge)
 
@@ -27,12 +26,12 @@ fun HomeScreen(onNavigateToRevenueExpenses: () -> Unit) {
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text(text = "Saldo: R$ 1000,00")
-            Button(onClick = onNavigateToRevenueExpenses) {
+            Button(onClick = { onNavigateToRevenueExpenses("revenue") }) {
                 Text(text = "Adicionar ganhos")
             }
         }
 
-        Button(onClick = onNavigateToRevenueExpenses, modifier = Modifier.fillMaxWidth()) {
+        Button(onClick = { onNavigateToRevenueExpenses("expenses") }, modifier = Modifier.fillMaxWidth()) {
             Text(text = "Adicionar despesas")
         }
     }
