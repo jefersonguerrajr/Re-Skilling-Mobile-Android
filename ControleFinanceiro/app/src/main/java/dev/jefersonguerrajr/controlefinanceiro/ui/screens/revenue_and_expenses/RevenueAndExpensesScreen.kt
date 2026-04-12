@@ -14,13 +14,19 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import dev.jefersonguerrajr.controlefinanceiro.data.model.Transaction
+import dev.jefersonguerrajr.controlefinanceiro.ui.FinanceViewModel
 
 @Composable
-fun RevenueAndExpensesScreen(type: String? = "revenue") {
+fun RevenueAndExpensesScreen(
+    type: String? = "revenue",
+    viewModel: FinanceViewModel,
+    onBack: () -> Unit
+) {
 
     var name by remember { mutableStateOf("") }
     var description by remember { mutableStateOf("") }
-    var value by remember { mutableStateOf("0.00") }
+    var value by remember { mutableStateOf("") }
 
     Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
         Text(
@@ -53,7 +59,20 @@ fun RevenueAndExpensesScreen(type: String? = "revenue") {
             }
         )
 
-        Button(onClick = { }, modifier = Modifier.fillMaxWidth()) {
+        Button(
+            onClick = {
+                val amount = value.toDoubleOrNull() ?: 0.0
+                val transaction = Transaction(
+                    title = name,
+                    description = description,
+                    amount = amount,
+                    type = type ?: "revenue"
+                )
+                viewModel.addTransaction(transaction)
+                onBack()
+            },
+            modifier = Modifier.fillMaxWidth()
+        ) {
             Text(text = "Adicionar")
         }
 

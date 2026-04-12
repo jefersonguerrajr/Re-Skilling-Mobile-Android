@@ -10,11 +10,13 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import dev.jefersonguerrajr.controlefinanceiro.ui.FinanceViewModel
 import dev.jefersonguerrajr.controlefinanceiro.ui.screens.home.HomeScreen
 import dev.jefersonguerrajr.controlefinanceiro.ui.screens.revenue_and_expenses.RevenueAndExpensesScreen
 import dev.jefersonguerrajr.controlefinanceiro.ui.theme.ControleFinanceiroTheme
@@ -34,6 +36,8 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun MainApp() {
     val navController = rememberNavController()
+    // O ViewModel aqui funciona como a nossa "Store" centralizada
+    val financeViewModel: FinanceViewModel = viewModel()
 
     Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
         NavHost(
@@ -43,15 +47,22 @@ fun MainApp() {
                 .padding(horizontal = 16.dp)
         ) {
             composable("home") {
-                HomeScreen(onNavigateToRevenueExpenses = { type ->
-                    navController.navigate("revenue_expenses/$type")
-                })
+                HomeScreen(
+                    viewModel = financeViewModel,
+                    onNavigateToRevenueExpenses = { type ->
+                        navController.navigate("revenue_expenses/$type")
+                    }
+                )
             }
             composable(
                 route = "revenue_expenses/{type}",
                 arguments = listOf(navArgument("type") { type = NavType.StringType })
             ) { backStackEntry ->
-                RevenueAndExpensesScreen(type = backStackEntry.arguments?.getString("type"))
+                RevenueAndExpensesScreen(
+                    type = backStackEntry.arguments?.getString("type"),
+                    viewModel = financeViewModel,
+                    onBack = { navController.popBackStack() }
+                )
             }
         }
     }
