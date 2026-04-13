@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
+import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
@@ -28,14 +29,17 @@ fun HomeScreen(
 ) {
     val transactions by viewModel.transactions.collectAsState()
     val userName by viewModel.userName.collectAsState()
+    val goal by viewModel.goal.collectAsState()
     val balance = viewModel.getTotalBalance()
 
-    var showDialog by remember { mutableStateOf(userName.isEmpty()) }
+    var showUserDialog by remember { mutableStateOf(userName.isEmpty()) }
+    var showGoalDialog by remember { mutableStateOf(false) }
     var tempName by remember { mutableStateOf("") }
 
-    if (showDialog) {
+    // Dialog para o nome do usuário
+    if (showUserDialog) {
         AlertDialog(
-            onDismissRequest = { /* Não permite fechar sem nome se desejar */ },
+            onDismissRequest = { },
             title = { Text(text = "Bem-vindo!") },
             text = {
                 Column {
@@ -53,7 +57,7 @@ fun HomeScreen(
                     onClick = {
                         if (tempName.isNotBlank()) {
                             viewModel.setUserName(tempName)
-                            showDialog = false
+                            showUserDialog = false
                         }
                     }
                 ) {
@@ -63,7 +67,51 @@ fun HomeScreen(
         )
     }
 
-    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+    // Dialog para criar meta
+    if (showGoalDialog) {
+        var goalName by remember { mutableStateOf("") }
+        var goalTarget by remember { mutableStateOf("") }
+
+        AlertDialog(
+            onDismissRequest = { showGoalDialog = false },
+            title = { Text(text = "Criar nova meta") },
+            text = {
+                Column {
+                    TextField(
+                        value = goalName,
+                        onValueChange = { goalName = it },
+                        label = { Text("Nome da meta") }
+                    )
+                    TextField(
+                        value = goalTarget,
+                        onValueChange = { goalTarget = it },
+                        label = { Text("Valor alvo") },
+                        modifier = Modifier.padding(top = 8.dp)
+                    )
+                }
+            },
+            confirmButton = {
+                Button(
+                    onClick = {
+                        val target = goalTarget.toDoubleOrNull() ?: 0.0
+                        if (goalName.isNotBlank() && target > 0) {
+                            viewModel.setGoal(goalName, target)
+                            showGoalDialog = false
+                        }
+                    }
+                ) {
+                    Text("Confirmar")
+                }
+            },
+            dismissButton = {
+                Button(onClick = { showGoalDialog = false }) {
+                    Text("Cancelar")
+                }
+            }
+        )
+    }
+
+    Column(verticalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.padding(16.dp)) {
         Text(
             text = "Olá, ${userName.ifBlank { "Fulano" }}, bem vindo ao aplicativo de despesas pessoais.",
             style = MaterialTheme.typography.titleLarge
@@ -90,6 +138,43 @@ fun HomeScreen(
         Text(text = "Últimas Transações:", style = MaterialTheme.typography.titleMedium)
         transactions.forEach { transaction ->
             Text(text = "${transaction.title}: R$ ${transaction.amount} (${transaction.type})")
+        }
+
+        // Seção da Meta
+        if (goal == null) {
+            Button(
+                onClick = { showGoalDialog = true },
+                modifier = Modifier.fillMaxWidth().padding(top = 16.dp)
+            ) {
+                Text("Criar meta")
+            }
+        } else {
+            val progress = (balance / goal!!.target).coerceIn(0.0, 1.0).toFloat()
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 16.dp)
+            ) {
+                Text(text = "Meta: ${goal!!.name}", style = MaterialTheme.typography.titleMedium)
+                Text(text = "Progresso: R$ %.2f / R$ %.2f".format(balance, goal!!.target))
+                
+                LinearProgressIndicator(
+                    progress = { progress },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 8.dp),
+                    color = MaterialTheme.colorScheme.primary,
+                    trackColor = MaterialTheme.colorScheme.surfaceVariant,
+                )
+                
+                Text(
+                    text = if (balance >= goal!!.target) 
+                        "Meta atingida! Parabéns!" 
+                    else 
+                        "Faltam R$ %.2f para atingir sua meta".format(goal!!.target - balance),
+                    style = MaterialTheme.typography.bodySmall
+                )
+            }
         }
     }
 }

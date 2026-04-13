@@ -16,6 +16,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import dev.jefersonguerrajr.controlefinanceiro.data.model.Transaction
 import dev.jefersonguerrajr.controlefinanceiro.ui.FinanceViewModel
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 
 @Composable
 fun RevenueAndExpensesScreen(
@@ -27,6 +30,7 @@ fun RevenueAndExpensesScreen(
     var name by remember { mutableStateOf("") }
     var description by remember { mutableStateOf("") }
     var value by remember { mutableStateOf("") }
+    var date by remember { mutableStateOf("") }
 
     Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
         Text(
@@ -59,14 +63,31 @@ fun RevenueAndExpensesScreen(
             }
         )
 
+        TextField(
+            modifier = Modifier.fillMaxWidth(),
+            value = date,
+            onValueChange = { date = it },
+            label = {
+                Text("Data (dd/MM/yyyy)")
+            },
+            placeholder = {
+                Text("Deixe vazio para usar a data de hoje")
+            }
+        )
+
         Button(
             onClick = {
                 val amount = value.toDoubleOrNull() ?: 0.0
+                val finalDate = date.ifBlank {
+                    SimpleDateFormat("dd/MM/yyyy", Locale.getDefault()).format(Date())
+                }
+
                 val transaction = Transaction(
                     title = name,
                     description = description,
                     amount = amount,
-                    type = type ?: "revenue"
+                    type = type ?: "revenue",
+                    date = finalDate
                 )
                 viewModel.addTransaction(transaction)
                 onBack()
