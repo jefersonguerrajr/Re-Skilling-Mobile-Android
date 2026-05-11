@@ -30,7 +30,7 @@ class ContactsViewModel : ViewModel() {
         viewModelScope.launch {
             try {
                 val newContact = RetrofitModule.contactApi.create(contact)
-                _contacts.value = _contacts.value + newContact
+                _contacts.value += newContact
             } catch (e: Exception) {
                 e.printStackTrace()
             }

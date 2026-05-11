@@ -7,7 +7,7 @@ data class Contact(
     val name: String,
     val email: String,
     val phone: String,
-    val birthDate: LocalDate,
+    val birthDate: String,
     val cep: String,
     val neighborhood: String,
     val street: String,

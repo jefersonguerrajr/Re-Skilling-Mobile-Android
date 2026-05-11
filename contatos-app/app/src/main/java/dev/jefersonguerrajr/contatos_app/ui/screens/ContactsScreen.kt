@@ -71,7 +71,7 @@ fun ContactsScreen(
     }
 
     if (showAddContactDialog) {
-        tempContact = remember { Contact(id = null, name = "", email = "", phone = "", birthDate = LocalDate.now(), cep = "", street = "", number = "", neighborhood = "", city = "", state = "") }
+        tempContact = remember { Contact(id = null, name = "", email = "", phone = "", birthDate = LocalDate.now().toString(), cep = "", street = "", number = "", neighborhood = "", city = "", state = "") }
         AlertDialog(
             onDismissRequest = { showAddContactDialog = false },
             title = { Text(text = "Adicionar Contato") },

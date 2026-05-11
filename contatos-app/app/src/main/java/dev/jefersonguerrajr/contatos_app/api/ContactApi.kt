@@ -10,18 +10,18 @@ import retrofit2.http.PUT
 import retrofit2.http.Path
 
 interface ContactApi {
-    @GET("api/contacts")
+    @GET("contacts")
     suspend fun getAll(): List<Contact>
 
-    @GET("api/contacts/{id}")
+    @GET("contacts/{id}")
     suspend fun getById(@Path("id") id: Long): Contact
 
-    @POST("api/contacts")
+    @POST("contacts")
     suspend fun create(@Body contact: Contact): Contact
 
-    @PUT("api/contacts/{id}")
+    @PUT("contacts/{id}")
     suspend fun update(@Path("id") id: Long, @Body contact: Contact): Contact
 
-    @DELETE("api/contacts/{id}")
+    @DELETE("contacts/{id}")
     suspend fun delete(@Path("id") id: Long)
 }
